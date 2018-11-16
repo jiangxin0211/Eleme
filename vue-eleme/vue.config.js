@@ -51,6 +51,7 @@ module.exports = {
     config.resolve.alias
       .set('components', reslove('src/components'))
       .set('common', reslove('src/common'))
+      .set('api', reslove('src/api'))
 
   }
 }
