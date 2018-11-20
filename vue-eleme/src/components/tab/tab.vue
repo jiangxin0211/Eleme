@@ -2,6 +2,7 @@
   <div class="tab">
     <cube-tab-bar
       :showSlider=true
+      :useTransition=false
       v-model="selectedLabel"
       :data="tabs"
       ref="tabBar"
@@ -14,15 +15,12 @@
         :show-dots=false
         :initial-index="index"
         ref="slide"
+        @change="onChange"
+        @scroll="onScorll"
+        :options="slideOptions"
       >
-        <cube-slide-item>
-          <goods></goods>
-        </cube-slide-item>
-        <cube-slide-item>
-          <ratings></ratings>
-        </cube-slide-item>
-        <cube-slide-item>
-          <seller></seller>
+        <cube-slide-item v-for="(tab, index) in tabs" :key="index">
+          <component :is="tab.component" :data="tab.data"></component>
         </cube-slide-item>
       </cube-slide>
     </div>
@@ -30,21 +28,28 @@
 </template>
 
 <script>
-import Seller from '../../components/seller/seller'
-import Goods from '../../components/goods/goods'
-import Ratings from '../../components/ratings/ratings'
 export default {
   name: "tab",
+  props: {
+    tabs: {
+      type: Array,
+      default () {
+        return {}
+      }
+    },
+    initialIndex: {
+      type: Number,
+      default: 0
+    }
+  },
   data () {
     return {
-      index: 0,
-      tabs: [{
-        label: '商品'
-      }, {
-        label: '评价'
-      }, {
-        label: '商家'
-      }]
+      index: this.initialIndex,
+      slideOptions: {
+        listenScroll: true,
+        probeType: 3,
+        directionLockThreshold: 0
+      }
     }
   },
   computed: {
@@ -61,10 +66,16 @@ export default {
       }
     }
   },
-  components: {
-    Seller,
-    Goods,
-    Ratings
+  methods: {
+    onChange (current) {
+      this.index = current
+    },
+    onScorll (pos) {
+      const tabBarWidth = this.$refs.tabBar.$el.clientWidth
+      const slideWidth = this.$refs.slide.slide.scrollerWidth
+      const transform = -pos.x / slideWidth * tabBarWidth
+      this.$refs.tabBar.setSliderTransform(transform)
+    }
   }
 }
 </script>
